@@ -2,205 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Quiz Battle vs Robots</title>
+  <title>Quiz Battle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- iOS web app meta (for Add to Home Screen) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Quiz Battle">
+
   <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #0a84ff;
+      --accent-muted: #e0f0ff;
+      --danger: #ff3b30;
+      --success: #34c759;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #050816;
-      color: #f9fafb;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
 
     header {
-      padding: 20px;
-      text-align: center;
-      background: #020617;
-      border-bottom: 1px solid #1f2937;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .ios-download-box {
+      display: none;
+      padding: 8px 0 0;
+    }
+
+    .ios-download-btn {
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ios-download-btn-icon {
+      font-size: 1.1rem;
+    }
+
+    .ios-instructions {
+      display: none;
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--accent-muted);
+      font-size: 0.8rem;
+      color: #1f2933;
     }
 
     main {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 1000px;
+      max-width: 960px;
       width: 100%;
       margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
-      gap: 16px;
+      padding: 12px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .top-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
       justify-content: space-between;
     }
 
     .search-box input {
       padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid #4b5563;
-      background: #020617;
-      color: #f9fafb;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
       width: 220px;
+    }
+
+    .selected-category-label {
+      font-size: 0.85rem;
+      color: var(--muted);
     }
 
     .categories {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
     .category-btn {
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid #4b5563;
-      background: #020617;
-      color: #e5e7eb;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      color: var(--fg);
+      font-size: 0.85rem;
       cursor: pointer;
-      font-size: 0.9rem;
     }
 
     .category-btn.active {
-      background: linear-gradient(135deg, #6366f1, #ec4899);
-      border-color: transparent;
-      color: #f9fafb;
+      color: var(--accent);
+      border-color: var(--accent);
+      background: #f5f9ff;
     }
 
     .game-area {
       display: grid;
       grid-template-columns: 3fr 2fr;
-      gap: 16px;
-    }
-
-    .question-card {
-      background: #020617;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid #1f2937;
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .question-text {
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-    }
-
-    .answers {
-      display: grid;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .answer-btn {
-      text-align: left;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #4b5563;
-      background: #020617;
-      color: #e5e7eb;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-
-    .answer-btn.correct {
-      background: #16a34a;
-      border-color: #16a34a;
-      color: #f9fafb;
-    }
-
-    .answer-btn.wrong {
-      background: #b91c1c;
-      border-color: #b91c1c;
-      color: #f9fafb;
-    }
-
-    .answer-btn:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-
-    .status-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: #9ca3af;
-      margin-top: 4px;
-    }
-
-    .timer {
-      font-weight: 600;
-      color: #f97316;
-    }
-
-    .points {
-      font-weight: 600;
-      color: #22c55e;
-    }
-
-    .next-btn {
-      margin-top: 10px;
-      align-self: flex-start;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #6366f1, #ec4899);
-      color: #f9fafb;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .robots-card {
-      background: #020617;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid #1f2937;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .robot-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.95rem;
-      padding: 6px 0;
-      border-bottom: 1px solid #111827;
-    }
-
-    .robot-row:last-child {
-      border-bottom: none;
-    }
-
-    .robot-name {
-      font-weight: 600;
-    }
-
-    .you-label {
-      color: #22c55e;
-    }
-
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: #6b7280;
-      border-top: 1px solid #1f2937;
-      background: #020617;
+      gap: 12px;
     }
 
     @media (max-width: 800px) {
@@ -208,37 +162,175 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      padding: 12px;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .timer {
+      font-weight: 600;
+      color: #ff9500;
+    }
+
+    .points {
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 6px 0 8px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .answer-btn {
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .answer-btn.correct {
+      background: #e6f9ec;
+      border-color: var(--success);
+      color: #0b7030;
+    }
+
+    .answer-btn.wrong {
+      background: #ffecec;
+      border-color: var(--danger);
+      color: #7a1610;
+    }
+
+    .answer-btn:disabled {
+      opacity: 0.75;
+      cursor: default;
+    }
+
+    .next-btn {
+      margin-top: 8px;
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+
+    .next-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .robots-card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .robot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .robot-row:last-child {
+      border-bottom: none;
+    }
+
+    .robot-name {
+      font-weight: 500;
+    }
+
+    .you-label {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    footer {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Quiz Battle vs Robots</h1>
+    <div class="header-top">
+      <div>
+        <h1>Quiz Battle</h1>
+        <p class="subtitle">Play timed trivia vs robots. 30 seconds, up to 1000 points per question.</p>
+      </div>
+      <div class="ios-download-box" id="iosDownloadBox">
+        <button class="ios-download-btn" id="iosDownloadBtn">
+          <span class="ios-download-btn-icon">⬇️</span>
+          <span>Download for iOS</span>
+        </button>
+      </div>
+    </div>
+    <div class="ios-instructions" id="iosInstructions">
+      <strong>Install on iPhone:</strong>
+      <ol style="padding-left:18px; margin:6px 0;">
+        <li>Tap the <strong>Share</strong> button in Safari.</li>
+        <li>Scroll and tap <strong>Add to Home Screen</strong>.</li>
+        <li>Tap <strong>Add</strong>. Your app appears on the home screen.</li>
+      </ol>
+      <span style="font-size:0.75rem;">This uses your browser to install the app; iOS doesn’t allow direct .ipa downloads from websites.</span>
+    </div>
   </header>
 
   <main>
     <div class="top-bar">
       <div class="search-box">
-        <input id="searchInput" type="text" placeholder="Search quiz type (e.g. football, history)..." />
+        <input id="searchInput" type="text" placeholder="Search quiz type (e.g. football, history)…">
       </div>
-      <div id="selectedCategoryLabel">Selected: <strong>Football</strong></div>
+      <div class="selected-category-label" id="selectedCategoryLabel">
+        Selected: <strong>Football</strong>
+      </div>
     </div>
 
     <div class="categories" id="categoriesContainer"></div>
 
     <div class="game-area">
-      <div class="question-card">
+      <div class="card">
         <div class="status-line">
           <div>Time left: <span class="timer" id="timerDisplay">30</span>s</div>
-          <div>Last round: <span class="points" id="lastPointsDisplay">0</span> pts</div>
+          <div>Last question: <span class="points" id="lastPointsDisplay">0</span> pts</div>
         </div>
-        <div class="question-text" id="questionText">
-          Loading question...
-        </div>
+        <div class="question-text" id="questionText">Loading question…</div>
         <div class="answers" id="answersContainer"></div>
         <button class="next-btn" id="nextButton">Next question</button>
       </div>
 
-      <div class="robots-card">
+      <div class="card">
+        <div class="robots-card-title">Scores</div>
         <div class="robot-row">
           <div class="robot-name you-label">You</div>
           <div id="yourScoreDisplay">0 pts</div>
@@ -260,11 +352,29 @@
   </main>
 
   <footer>
-    Quiz battle prototype · You vs Robots · 30 seconds per question
+    Quiz Battle · Web app style quiz · Add to Home Screen on iOS for app‑like experience
   </footer>
 
   <script>
-    // Categories and questions
+    // --- iOS "Download" detection (Add to Home Screen helper) ---
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    const iosDownloadBox = document.getElementById("iosDownloadBox");
+    const iosDownloadBtn = document.getElementById("iosDownloadBtn");
+    const iosInstructions = document.getElementById("iosInstructions");
+
+    if (isIOS && isSafari) {
+      iosDownloadBox.style.display = "block";
+    }
+
+    iosDownloadBtn.addEventListener("click", () => {
+      iosInstructions.style.display =
+        iosInstructions.style.display === "block" ? "none" : "block";
+    });
+
+    // --- Quiz game logic ---
+
     const categories = [
       {
         id: "football",
@@ -290,6 +400,11 @@
             text: "In football, how many players start on the field per team?",
             answers: ["9", "10", "11", "12"],
             correctIndex: 2
+          },
+          {
+            text: "Which country hosted the 2014 FIFA World Cup?",
+            answers: ["Brazil", "Russia", "Germany", "South Africa"],
+            correctIndex: 0
           }
         ]
       },
@@ -309,14 +424,19 @@
             correctIndex: 1
           },
           {
-            text: "Which country has the largest population?",
+            text: "Which country has the largest population (recent data)?",
             answers: ["United States", "China", "India", "Russia"],
-            correctIndex: 2 // assuming newer data; you can flip to 1 for China
+            correctIndex: 2
           },
           {
             text: "Which ocean is the largest?",
             answers: ["Indian", "Atlantic", "Arctic", "Pacific"],
             correctIndex: 3
+          },
+          {
+            text: "Mount Everest lies on the border of Nepal and which country?",
+            answers: ["India", "China", "Bhutan", "Pakistan"],
+            correctIndex: 1
           }
         ]
       },
@@ -344,6 +464,11 @@
             text: "The fall of the Berlin Wall happened in which year?",
             answers: ["1969", "1979", "1989", "1999"],
             correctIndex: 2
+          },
+          {
+            text: "What document begins with 'We the People'?",
+            answers: ["Magna Carta", "US Constitution", "Bill of Rights", "Declaration of Independence"],
+            correctIndex: 1
           }
         ]
       },
@@ -371,6 +496,11 @@
             text: "Which galaxy do we live in?",
             answers: ["Andromeda", "Sombrero", "Whirlpool", "Milky Way"],
             correctIndex: 3
+          },
+          {
+            text: "What gas do plants mainly take in for photosynthesis?",
+            answers: ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"],
+            correctIndex: 2
           }
         ]
       },
@@ -390,13 +520,18 @@
             correctIndex: 2
           },
           {
-            text: "How many continents are there on Earth (commonly taught)?",
+            text: "How many continents are commonly taught on Earth?",
             answers: ["5", "6", "7", "8"],
             correctIndex: 2
           },
           {
             text: "Which animal is known as the 'king of the jungle'?",
             answers: ["Tiger", "Elephant", "Lion", "Gorilla"],
+            correctIndex: 2
+          },
+          {
+            text: "What is the largest planet in our solar system?",
+            answers: ["Mars", "Earth", "Jupiter", "Saturn"],
             correctIndex: 2
           }
         ]
@@ -496,9 +631,7 @@
     }
 
     function simulateRobots() {
-      // robots get random points if they "get it right"
-      // make them sometimes fail
-      const robotChanceToBeRight = 0.7; // 70% chance
+      const robotChanceToBeRight = 0.7;
 
       [1, 2, 3].forEach(robotNum => {
         const isRight = Math.random() < robotChanceToBeRight;
@@ -532,6 +665,7 @@
       if (!currentQuestion) {
         questionTextEl.textContent = "No questions available for this category yet.";
         answersContainer.innerHTML = "";
+        nextButton.disabled = true;
         return;
       }
 
@@ -550,7 +684,7 @@
           revealCorrect(index);
 
           if (isCorrect) {
-            const points = Math.floor(Math.random() * 1000) + 1; // 1 to 1000
+            const points = Math.floor(Math.random() * 1000) + 1;
             yourScore += points;
             lastPointsDisplay.textContent = points;
           } else {
@@ -563,10 +697,10 @@
         answersContainer.appendChild(btn);
       });
 
+      nextButton.disabled = false;
       resetTimer();
     }
 
-    // Event listeners
     searchInput.addEventListener("input", () => {
       renderCategories(searchInput.value);
     });
@@ -575,7 +709,6 @@
       startNewQuestion();
     });
 
-    // Initial render
     renderCategories();
     selectedCategoryLabel.innerHTML = `Selected: <strong>Football</strong>`;
     startNewQuestion();
