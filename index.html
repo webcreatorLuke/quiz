@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Battle vs Robots</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #050816;
+      color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px;
+      text-align: center;
+      background: #020617;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+      gap: 16px;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box input {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #f9fafb;
+      width: 220px;
+    }
+
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .category-btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .category-btn.active {
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      border-color: transparent;
+      color: #f9fafb;
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 16px;
+    }
+
+    .question-card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #1f2937;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .answer-btn {
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .answer-btn.correct {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #f9fafb;
+    }
+
+    .answer-btn.wrong {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      color: #f9fafb;
+    }
+
+    .answer-btn:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .timer {
+      font-weight: 600;
+      color: #f97316;
+    }
+
+    .points {
+      font-weight: 600;
+      color: #22c55e;
+    }
+
+    .next-btn {
+      margin-top: 10px;
+      align-self: flex-start;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: #f9fafb;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .robots-card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .robot-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      padding: 6px 0;
+      border-bottom: 1px solid #111827;
+    }
+
+    .robot-row:last-child {
+      border-bottom: none;
+    }
+
+    .robot-name {
+      font-weight: 600;
+    }
+
+    .you-label {
+      color: #22c55e;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.8rem;
+      color: #6b7280;
+      border-top: 1px solid #1f2937;
+      background: #020617;
+    }
+
+    @media (max-width: 800px) {
+      .game-area {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz Battle vs Robots</h1>
+  </header>
+
+  <main>
+    <div class="top-bar">
+      <div class="search-box">
+        <input id="searchInput" type="text" placeholder="Search quiz type (e.g. football, history)..." />
+      </div>
+      <div id="selectedCategoryLabel">Selected: <strong>Football</strong></div>
+    </div>
+
+    <div class="categories" id="categoriesContainer"></div>
+
+    <div class="game-area">
+      <div class="question-card">
+        <div class="status-line">
+          <div>Time left: <span class="timer" id="timerDisplay">30</span>s</div>
+          <div>Last round: <span class="points" id="lastPointsDisplay">0</span> pts</div>
+        </div>
+        <div class="question-text" id="questionText">
+          Loading question...
+        </div>
+        <div class="answers" id="answersContainer"></div>
+        <button class="next-btn" id="nextButton">Next question</button>
+      </div>
+
+      <div class="robots-card">
+        <div class="robot-row">
+          <div class="robot-name you-label">You</div>
+          <div id="yourScoreDisplay">0 pts</div>
+        </div>
+        <div class="robot-row">
+          <div class="robot-name">Robot Alpha</div>
+          <div id="robot1ScoreDisplay">0 pts</div>
+        </div>
+        <div class="robot-row">
+          <div class="robot-name">Robot Beta</div>
+          <div id="robot2ScoreDisplay">0 pts</div>
+        </div>
+        <div class="robot-row">
+          <div class="robot-name">Robot Gamma</div>
+          <div id="robot3ScoreDisplay">0 pts</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Quiz battle prototype · You vs Robots · 30 seconds per question
+  </footer>
+
+  <script>
+    // Categories and questions
+    const categories = [
+      {
+        id: "football",
+        name: "Football",
+        tags: ["football", "soccer", "sports"],
+        questions: [
+          {
+            text: "Which country won the FIFA World Cup in 2018?",
+            answers: ["Brazil", "Germany", "France", "Argentina"],
+            correctIndex: 2
+          },
+          {
+            text: "Which player is known as 'CR7'?",
+            answers: ["Lionel Messi", "Neymar Jr", "Cristiano Ronaldo", "Kylian Mbappé"],
+            correctIndex: 2
+          },
+          {
+            text: "Which club has won the most UEFA Champions League titles?",
+            answers: ["Barcelona", "AC Milan", "Real Madrid", "Liverpool"],
+            correctIndex: 2
+          },
+          {
+            text: "In football, how many players start on the field per team?",
+            answers: ["9", "10", "11", "12"],
+            correctIndex: 2
+          }
+        ]
+      },
+      {
+        id: "world",
+        name: "World & Geography",
+        tags: ["world", "geography", "countries", "maps"],
+        questions: [
+          {
+            text: "What is the capital of Japan?",
+            answers: ["Tokyo", "Seoul", "Beijing", "Osaka"],
+            correctIndex: 0
+          },
+          {
+            text: "Which continent is the Sahara Desert on?",
+            answers: ["Asia", "Africa", "Australia", "South America"],
+            correctIndex: 1
+          },
+          {
+            text: "Which country has the largest population?",
+            answers: ["United States", "China", "India", "Russia"],
+            correctIndex: 2 // assuming newer data; you can flip to 1 for China
+          },
+          {
+            text: "Which ocean is the largest?",
+            answers: ["Indian", "Atlantic", "Arctic", "Pacific"],
+            correctIndex: 3
+          }
+        ]
+      },
+      {
+        id: "history",
+        name: "History & Politics",
+        tags: ["history", "president", "war", "politics"],
+        questions: [
+          {
+            text: "Who was the first President of the United States?",
+            answers: ["Abraham Lincoln", "George Washington", "Thomas Jefferson", "John Adams"],
+            correctIndex: 1
+          },
+          {
+            text: "In what year did World War II end?",
+            answers: ["1945", "1939", "1918", "1950"],
+            correctIndex: 0
+          },
+          {
+            text: "Which empire was ruled by Julius Caesar?",
+            answers: ["Greek Empire", "Roman Empire", "Ottoman Empire", "Persian Empire"],
+            correctIndex: 1
+          },
+          {
+            text: "The fall of the Berlin Wall happened in which year?",
+            answers: ["1969", "1979", "1989", "1999"],
+            correctIndex: 2
+          }
+        ]
+      },
+      {
+        id: "science",
+        name: "Science & Space",
+        tags: ["science", "space", "physics", "chemistry"],
+        questions: [
+          {
+            text: "What planet is known as the Red Planet?",
+            answers: ["Venus", "Mars", "Jupiter", "Mercury"],
+            correctIndex: 1
+          },
+          {
+            text: "What is the chemical symbol for water?",
+            answers: ["O2", "H2O", "CO2", "HO2"],
+            correctIndex: 1
+          },
+          {
+            text: "What force keeps us on the ground?",
+            answers: ["Magnetism", "Friction", "Gravity", "Electricity"],
+            correctIndex: 2
+          },
+          {
+            text: "Which galaxy do we live in?",
+            answers: ["Andromeda", "Sombrero", "Whirlpool", "Milky Way"],
+            correctIndex: 3
+          }
+        ]
+      },
+      {
+        id: "mixed",
+        name: "Mixed Trivia",
+        tags: ["mixed", "random", "general"],
+        questions: [
+          {
+            text: "Which company created the iPhone?",
+            answers: ["Google", "Apple", "Microsoft", "Samsung"],
+            correctIndex: 1
+          },
+          {
+            text: "Which sport is known as 'the beautiful game'?",
+            answers: ["Basketball", "Baseball", "Football (Soccer)", "Tennis"],
+            correctIndex: 2
+          },
+          {
+            text: "How many continents are there on Earth (commonly taught)?",
+            answers: ["5", "6", "7", "8"],
+            correctIndex: 2
+          },
+          {
+            text: "Which animal is known as the 'king of the jungle'?",
+            answers: ["Tiger", "Elephant", "Lion", "Gorilla"],
+            correctIndex: 2
+          }
+        ]
+      }
+    ];
+
+    let selectedCategoryId = "football";
+    let currentQuestion = null;
+    let timer = null;
+    let timeLeft = 30;
+    let answered = false;
+
+    let yourScore = 0;
+    let robot1Score = 0;
+    let robot2Score = 0;
+    let robot3Score = 0;
+
+    const categoriesContainer = document.getElementById("categoriesContainer");
+    const searchInput = document.getElementById("searchInput");
+    const selectedCategoryLabel = document.getElementById("selectedCategoryLabel");
+    const questionTextEl = document.getElementById("questionText");
+    const answersContainer = document.getElementById("answersContainer");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const lastPointsDisplay = document.getElementById("lastPointsDisplay");
+    const nextButton = document.getElementById("nextButton");
+    const yourScoreDisplay = document.getElementById("yourScoreDisplay");
+    const robot1ScoreDisplay = document.getElementById("robot1ScoreDisplay");
+    const robot2ScoreDisplay = document.getElementById("robot2ScoreDisplay");
+    const robot3ScoreDisplay = document.getElementById("robot3ScoreDisplay");
+
+    function renderCategories(filterText = "") {
+      categoriesContainer.innerHTML = "";
+      const lower = filterText.toLowerCase();
+
+      categories.forEach(cat => {
+        const matches =
+          cat.name.toLowerCase().includes(lower) ||
+          cat.tags.some(tag => tag.toLowerCase().includes(lower));
+
+        if (!matches) return;
+
+        const btn = document.createElement("button");
+        btn.textContent = cat.name;
+        btn.className = "category-btn";
+        if (cat.id === selectedCategoryId) {
+          btn.classList.add("active");
+        }
+        btn.addEventListener("click", () => {
+          selectedCategoryId = cat.id;
+          selectedCategoryLabel.innerHTML = `Selected: <strong>${cat.name}</strong>`;
+          renderCategories(searchInput.value);
+          startNewQuestion();
+        });
+        categoriesContainer.appendChild(btn);
+      });
+    }
+
+    function getRandomQuestionFromSelectedCategory() {
+      const category = categories.find(c => c.id === selectedCategoryId);
+      if (!category || category.questions.length === 0) return null;
+      const index = Math.floor(Math.random() * category.questions.length);
+      return category.questions[index];
+    }
+
+    function resetTimer() {
+      if (timer) clearInterval(timer);
+      timeLeft = 30;
+      timerDisplay.textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          handleTimeUp();
+        }
+      }, 1000);
+    }
+
+    function handleTimeUp() {
+      if (answered) return;
+      answered = true;
+      revealCorrect(null);
+      lastPointsDisplay.textContent = "0";
+      simulateRobots();
+    }
+
+    function revealCorrect(selectedIndex) {
+      const buttons = answersContainer.querySelectorAll("button");
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === currentQuestion.correctIndex) {
+          btn.classList.add("correct");
+        } else if (index === selectedIndex && index !== currentQuestion.correctIndex) {
+          btn.classList.add("wrong");
+        }
+      });
+    }
+
+    function simulateRobots() {
+      // robots get random points if they "get it right"
+      // make them sometimes fail
+      const robotChanceToBeRight = 0.7; // 70% chance
+
+      [1, 2, 3].forEach(robotNum => {
+        const isRight = Math.random() < robotChanceToBeRight;
+        let gained = 0;
+        if (isRight) {
+          gained = Math.floor(Math.random() * 1000) + 1;
+        }
+        if (robotNum === 1) {
+          robot1Score += gained;
+        } else if (robotNum === 2) {
+          robot2Score += gained;
+        } else {
+          robot3Score += gained;
+        }
+      });
+
+      updateScoreDisplays();
+    }
+
+    function updateScoreDisplays() {
+      yourScoreDisplay.textContent = yourScore + " pts";
+      robot1ScoreDisplay.textContent = robot1Score + " pts";
+      robot2ScoreDisplay.textContent = robot2Score + " pts";
+      robot3ScoreDisplay.textContent = robot3Score + " pts";
+    }
+
+    function startNewQuestion() {
+      if (timer) clearInterval(timer);
+      answered = false;
+      currentQuestion = getRandomQuestionFromSelectedCategory();
+      if (!currentQuestion) {
+        questionTextEl.textContent = "No questions available for this category yet.";
+        answersContainer.innerHTML = "";
+        return;
+      }
+
+      questionTextEl.textContent = currentQuestion.text;
+      answersContainer.innerHTML = "";
+      currentQuestion.answers.forEach((answerText, index) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = answerText;
+        btn.addEventListener("click", () => {
+          if (answered) return;
+          answered = true;
+          clearInterval(timer);
+
+          const isCorrect = index === currentQuestion.correctIndex;
+          revealCorrect(index);
+
+          if (isCorrect) {
+            const points = Math.floor(Math.random() * 1000) + 1; // 1 to 1000
+            yourScore += points;
+            lastPointsDisplay.textContent = points;
+          } else {
+            lastPointsDisplay.textContent = "0";
+          }
+
+          updateScoreDisplays();
+          simulateRobots();
+        });
+        answersContainer.appendChild(btn);
+      });
+
+      resetTimer();
+    }
+
+    // Event listeners
+    searchInput.addEventListener("input", () => {
+      renderCategories(searchInput.value);
+    });
+
+    nextButton.addEventListener("click", () => {
+      startNewQuestion();
+    });
+
+    // Initial render
+    renderCategories();
+    selectedCategoryLabel.innerHTML = `Selected: <strong>Football</strong>`;
+    startNewQuestion();
+  </script>
+</body>
+</html>
